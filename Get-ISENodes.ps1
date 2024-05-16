@@ -1,5 +1,6 @@
 #
-#
+#  This CmdLet will 
+#   get and display all the Nodes in the ISE Deloyment
 #
 
 #
