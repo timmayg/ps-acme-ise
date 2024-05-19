@@ -18,3 +18,7 @@ Here is a short description of some of the files in this Repo...
 
 02b-Get-ISESystemCerts.ps1 - Retrieve a list of the System Certs on all the ISE Nodes and print them to the screen. 
 
+03-Validate-ISESystemCerts.ps1 - THIS FILE NEEDS WORK - This will compare the current date \ time vs the date on the certificate. 
+NOTE: We will need to determine how to ID 'close to expiring certs' before Updating the Cert in the next step. 
+
+
