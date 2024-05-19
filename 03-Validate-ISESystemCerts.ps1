@@ -1,5 +1,6 @@
 #
-#  !!! THIS IS STILL THROWING SOME ERRORS WHEN COMPARING DATE RANGES !!!
+#  !!! THIS IS STILL THROWING SOME ERRORS WHEN TRYING TO CONVERT
+#         THE CERTS EXPIRATION DATE TO A PS OBJECT     !!!
 #
 
 #
@@ -27,7 +28,9 @@ $node_list_uri = 'https://' + $fqdn + '/api/v1/deployment/node'
 $node_list_response = Invoke-RestMethod -Uri $node_list_uri -Method Get -Headers $headers
 
 
-
+#
+#  Here we will gather a list of all the System Certificates on all the ISE Nodes
+#
 $all_certificates = @()
 foreach ($node in $node_list_response.response) {
     $sys_certs_uri = 'https://' + $fqdn + '/api/v1/certs/system-certificate/' + $node.hostname
@@ -38,10 +41,50 @@ foreach ($node in $node_list_response.response) {
 $all_certificates.response | Format-List friendlyName, subject, issuedTo, expirationDate
 
 
+#
+#   BEGIN TEST SECTION
+#   DELETE AFTER COMPLETE
+
+$bb = [datetime]::ParseExact($all_certificates.response[0].validFrom, "ddd MMM dd HH:mm:ss 'EDT' yyyy", $null)
+
+
 foreach ($cert in $all_certificates.response) {
     $dateString = $cert.expirationDate
-    $dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", [CultureInfo]::InvariantCulture)
+    $dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", $null)
+    Write-Host $cert.friendlyName, $cert.expirationDate
+}
 
+
+
+    if ($dateObject -lt (Get-Date)) {
+        Write-Host "Certificate ID: $($cert.id) is expired."
+        Write-Host "Friendly Name: $($cert.friendlyName)"
+        Write-Host "Expiration Date: $($cert.expirationDate)"
+        Write-Host ""
+    }
+}
+
+
+
+
+#
+#   END TEST SECTION
+#
+#
+
+
+
+
+#
+#  In the foreach loop we will iterate through all the certificates and convert the
+#    expiry date to a PS Object so we can compare it to the $date variable.
+#
+#
+#   THIS STEP IS BROKEN RIGHT NOW... :-(
+#
+foreach ($cert in $all_certificates.response) {
+    $dateString = $cert.expirationDate
+    $dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", $null)
     if ($dateObject -lt (Get-Date)) {
         Write-Host "Certificate ID: $($cert.id) is expired."
         Write-Host "Friendly Name: $($cert.friendlyName)"

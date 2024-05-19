@@ -1,6 +1,12 @@
 # ps-acme-ise
  PowerShell ACME and ISE
 
+<div style="display: flex; justify-content: space-around;">
+  <img src="images/ps.jpg" alt="PowerShell logo" style="width: 300px; height: 300px;"/>
+  <img src="images/cisco-ise.jpg" alt="Cisco ISE logo" style="width: 300px; height: 300px;"/>
+  <img src="images/acme.jpg" alt="ACME logo" style="width: 300px; height: 300px;"/>
+</div>
+
 
 This repo contains some PoV code that I've written to show how to do some basic certificate management with PowerShell Let's Encrypt and Cisco ISE. 
 
