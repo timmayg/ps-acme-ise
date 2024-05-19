@@ -2,9 +2,9 @@
  PowerShell ACME and ISE
 
 <div style="display: flex; justify-content: space-around;">
-  <img src="images/ps.jpeg" alt="PowerShell logo" style="width: 300px; height: 300px;"/>
-  <img src="images/cisco-ise.png" alt="Cisco ISE logo" style="width: 300px; height: 300px;"/>
-  <img src="images/acme.png" alt="ACME logo" style="width: 300px; height: 300px;"/>
+  <img src="images/ps.jpeg" alt="PowerShell logo" style="width: 100px; height: 100px;"/>
+  <img src="images/cisco-ise.png" alt="Cisco ISE logo" style="width: 100px; height: 100px;"/>
+  <img src="images/acme.png" alt="ACME logo" style="width: 100px; height: 100px;"/>
 </div>
 
 
