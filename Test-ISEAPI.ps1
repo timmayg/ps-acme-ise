@@ -7,7 +7,7 @@
 #
 Write-Host -ForegroundColor Red 'Decrypting AuthZ Creds'
 Write-Host -ForegroundColor Red 'Building Headers'
-$retrievedSecurePassword = Get-Content /users/tiglen/usr-iseapi_admin.sec | ConvertTo-SecureString
+$retrievedSecurePassword = Get-Content /users/tiglen/secs/usr-iseapi_admin.sec | ConvertTo-SecureString
 $plainTextPassword = [System.Net.NetworkCredential]::new("", $retrievedSecurePassword).Password
 $headers = @{
     'Authorization' = $plainTextPassword

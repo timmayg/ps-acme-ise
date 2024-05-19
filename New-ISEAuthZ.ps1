@@ -7,9 +7,12 @@
 
 
 #
+# If you've found this code on Github, just remove this section and replace 
+#     this  'Authorization' = $plainTextPassword
+#     with your real Basic AuthZ token. 
 # Retrieve the Basic AuthZ String
 #
-$retrievedSecurePassword = Get-Content /users/tiglen/usr-iseapi_admin.sec | ConvertTo-SecureString
+$retrievedSecurePassword = Get-Content /users/tiglen/secs/usr-iseapi_admin.sec | ConvertTo-SecureString
 $plainTextPassword = [System.Net.NetworkCredential]::new("", $retrievedSecurePassword).Password
 #
 #  Create Auth Token and Obtain Domain UUID
