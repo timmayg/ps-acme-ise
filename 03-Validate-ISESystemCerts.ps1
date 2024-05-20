@@ -49,6 +49,22 @@ $bb = [datetime]::ParseExact($all_certificates.response[0].validFrom, "ddd MMM d
 
 
 foreach ($cert in $all_certificates.response) {
+    # Convert validFrom to DateTime object
+    $validFromString = $cert.validFrom
+    $validFromCleanString = $validFromString.Substring(0, $validFromString.Length - 4)
+    $cert.validFrom = [DateTime]::ParseExact($validFromCleanString, "ddd MMM dd HH:mm:ss yyyy", $null)
+    
+    # Convert expirationDate to DateTime object
+    $expirationDateString = $cert.expirationDate
+    $expirationDateCleanString = $expirationDateString.Substring(0, $expirationDateString.Length - 4)
+    $cert.expirationDate = [DateTime]::ParseExact($expirationDateCleanString, "ddd MMM dd HH:mm:ss yyyy", $null)
+}
+
+# Output the updated certificates to verify the changes
+$certs
+
+
+foreach ($cert in $all_certificates.response) {
     $dateString = $cert.expirationDate
     $dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", $null)
     Write-Host $cert.friendlyName, $cert.expirationDate
