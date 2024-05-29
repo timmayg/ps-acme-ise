@@ -1,5 +1,5 @@
 # ps-acme-ise
- PowerShell ACME and ISE
+ PowerShell, ACME and ISE
 
 <div style="display: flex; justify-content: space-around;">
   <img src="images/ps.jpeg" alt="PowerShell logo" style="width: 150px; height: 150px;"/>
@@ -13,6 +13,7 @@ This repo contains some PoV code that I've written to show how to do some basic 
 I've decided to use PowerShell for this since Posh-ACME is a very mature method for interacting with ACME based Certificate Authorities. 
 
 Here is a short description of some of the files in this Repo...
+Files that are not numbered are not fully complete and may not fully operate. As I make progress the files will be added a number to show the sequence that they should be run. 
 
 00-Create-BasicAuthString.ps1 - This will create a Basic Authentication string.  Basic Auth strings are insecure and should not be stored in the clear
 

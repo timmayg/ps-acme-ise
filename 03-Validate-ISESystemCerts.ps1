@@ -38,82 +38,44 @@ foreach ($node in $node_list_response.response) {
     $sys_certs_response_content_json = $sys_certs_response.Content | ConvertFrom-Json
     $all_certificates += $sys_certs_response_content_json
 }
-$all_certificates.response | Format-List friendlyName, subject, issuedTo, expirationDate
+$all_certificates.response.count
+#$all_certificates.response | Format-List
+#$all_certificates.response | Format-List friendlyName, subject, issuedTo, expirationDate
 
 
-#
-#   BEGIN TEST SECTION
-#   DELETE AFTER COMPLETE
-
-$bb = [datetime]::ParseExact($all_certificates.response[0].validFrom, "ddd MMM dd HH:mm:ss 'EDT' yyyy", $null)
-
+# Initialize an empty array to hold the new certificates
+$new_all_certificates = @()
 
 foreach ($cert in $all_certificates.response) {
-    # Convert validFrom to DateTime object
-    $validFromString = $cert.validFrom
-    $validFromCleanString = $validFromString.Substring(0, $validFromString.Length - 4)
-    $cert.validFrom = [DateTime]::ParseExact($validFromCleanString, "ddd MMM dd HH:mm:ss yyyy", $null)
-    
-    # Convert expirationDate to DateTime object
-    $expirationDateString = $cert.expirationDate
-    $expirationDateCleanString = $expirationDateString.Substring(0, $expirationDateString.Length - 4)
-    $cert.expirationDate = [DateTime]::ParseExact($expirationDateCleanString, "ddd MMM dd HH:mm:ss yyyy", $null)
-}
+    # Convert the validFrom and expirationDate to DateTime objects
+    $validFrom = [datetime]::ParseExact($cert.validFrom, "ddd MMM dd HH:mm:ss 'EDT' yyyy", $null)
+    $expiryDate = [datetime]::ParseExact($cert.expirationDate, "ddd MMM dd HH:mm:ss 'EDT' yyyy", $null)
 
-# Output the updated certificates to verify the changes
-$certs
-
-
-foreach ($cert in $all_certificates.response) {
-    $dateString = $cert.expirationDate
-    $dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", $null)
-    Write-Host $cert.friendlyName, $cert.expirationDate
-}
-
-
-
-    if ($dateObject -lt (Get-Date)) {
-        Write-Host "Certificate ID: $($cert.id) is expired."
-        Write-Host "Friendly Name: $($cert.friendlyName)"
-        Write-Host "Expiration Date: $($cert.expirationDate)"
-        Write-Host ""
+    # Create a new PS object with the same properties, replacing validFrom and expirationDate with DateTime objects
+    $new_cert = [PSCustomObject]@{
+        id                        = $cert.id
+        friendlyName              = $cert.friendlyName
+        serialNumberDecimalFormat = $cert.serialNumberDecimalFormat
+        issuedTo                  = $cert.issuedTo
+        issuedBy                  = $cert.issuedBy
+        validFrom                 = $validFrom
+        expirationDate            = $expiryDate
+        usedBy                    = $cert.usedBy
+        keySize                   = $cert.keySize
+        groupTag                  = $cert.groupTag
+        selfSigned                = $cert.selfSigned
+        signatureAlgorithm        = $cert.signatureAlgorithm
+        portalsUsingTheTag        = $cert.portalsUsingTheTag
+        sha256Fingerprint         = $cert.sha256Fingerprint
+        link                      = $cert.link
     }
+
+    # Add the new object to the array
+    $new_all_certificates += $new_cert
 }
 
-
-
-
-#
-#   END TEST SECTION
-#
-#
-
-
-
-
-#
-#  In the foreach loop we will iterate through all the certificates and convert the
-#    expiry date to a PS Object so we can compare it to the $date variable.
-#
-#
-#   THIS STEP IS BROKEN RIGHT NOW... :-(
-#
-foreach ($cert in $all_certificates.response) {
-    $dateString = $cert.expirationDate
-    $dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", $null)
-    if ($dateObject -lt (Get-Date)) {
-        Write-Host "Certificate ID: $($cert.id) is expired."
-        Write-Host "Friendly Name: $($cert.friendlyName)"
-        Write-Host "Expiration Date: $($cert.expirationDate)"
-        Write-Host ""
-    }
-}
-
-
-
-
-
-
+# Output the new array to verify the changes
+$new_all_certificates
 
 
 
@@ -122,32 +84,10 @@ foreach ($cert in $all_certificates.response) {
 
 $dateString = $all_certificates.response.expirationDate[0]
 
-# Define an array of potential timezone formats
-$timezones = @("zzz", "zz", "K", "GMT", "UTC", "Z")
-
-# Iterate through the timezones and try parsing the date string
-foreach ($timezone in $timezones) {
-    $format = "ddd MMM dd HH:mm:ss $timezone yyyy"
-    if ([DateTime]::TryParseExact($dateString, $format, [CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$dateObject)) {
-        break
-    }
-}
-
-if ($dateObject -ne $null) {
-    Write-Host "Parsed date: $dateObject"
-} else {
-    Write-Host "Failed to parse date."
-}
 
 ###########################################################################
 ###########################################################################
 ###########################################################################
-
-
-# This works for $dateStrings that are EDT but not any other timezone. 
-# In $dateObject we are hardcoding the timezone. 
-$dateString = $all_certificates.response.expirationDate[0]
-$dateObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss EDT yyyy", [CultureInfo]::InvariantCulture)
 
 
 
@@ -274,69 +214,10 @@ Write-Host -ForegroundColor DarkMagenta 'To see more info check out this variabl
 
 
 
-$string_dates = @(
-    "Fri Jun 13 14:44:59 EDT 2025",
-    "Tue Dec 10 21:03:12 EST 2024",
-    "Thu Jun 15 15:58:38 EDT 2028",
-    "Thu Jun 15 15:58:39 MST 2028",
-    "Mon Jan 08 21:47:23 EST 2024",
-    "Fri Jun 14 12:47:08 IST 2024",
-    "Thu Jun 15 00:00:04 PST 2028",
-    "Thu Jun 15 14:46:17 EDT 2028",
-    "Tue Dec 10 21:05:14 EST 2024",
-    "Wed Jun 14 23:54:15 PDT 2028",
-    "Thu Jun 15 14:46:19 EDT 2028",
-    "Thu Jun 13 20:11:23 CET 2024",
-    "Wed Jun 14 21:52:20 EDT 2028",
-    "Tue Jun 16 23:16:17 AEST 2026",
-    "Tue Dec 10 21:16:37 EST 2024",
-    "Tue Jun 13 15:59:23 GMT 2028",
-    "Fri Jun 16 08:49:17 EDT 2028",
-    "Fri Jun 16 08:49:18 NZST 2028"
-)
-
-
-
 ###########################################################################
 ###########################################################################
 ###########################################################################
 
 
-
-
-
-# Define the array of date strings
-$string_dates1 = @(
-    "Fri Jun 13 14:44:59 EDT 2025",
-    "Tue Dec 10 21:03:12 EST 2024",
-    "Thu Jun 15 15:58:38 EDT 2028",
-    "Thu Jun 15 15:58:39 MST 2028",
-    "Mon Jan 08 21:47:23 EST 2024",
-    "Fri Jun 14 12:47:08 IST 2024",
-    "Thu Jun 15 00:00:04 PST 2028",
-    "Thu Jun 15 14:46:17 EDT 2028",
-    "Tue Dec 10 21:05:14 EST 2024",
-    "Wed Jun 14 23:54:15 PDT 2028",
-    "Thu Jun 15 14:46:19 EDT 2028",
-    "Thu Jun 13 20:11:23 CET 2024",
-    "Wed Jun 14 21:52:20 EDT 2028",
-    "Tue Jun 16 23:16:17 AEST 2026",
-    "Tue Dec 10 21:16:37 EST 2024",
-    "Tue Jun 13 15:59:23 GMT 2028",
-    "Fri Jun 16 08:49:17 EDT 2028",
-    "Fri Jun 16 08:49:18 NZST 2028"
-)
-
-# Initialize an empty array to store DateTime objects
-$datetime_array = @()
-
-# Iterate through each date string and convert it to DateTime object
-foreach ($dateString in $string_dates1) {
-    $dateTimeObject = [DateTime]::ParseExact($dateString, "ddd MMM dd HH:mm:ss zzz yyyy", [CultureInfo]::InvariantCulture)
-    $datetime_array += $dateTimeObject
-}
-
-# Display the DateTime objects in the array
-$datetime_array
 
 
